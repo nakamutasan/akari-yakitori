@@ -1,0 +1,1572 @@
+/* =========================================
+   炭火焼鳥 あかり の見た目を決めるファイル
+   ========================================= */
+
+/* --- 1. 色と動き方の設定 --- */
+:root {
+  --black: #0e0b09;      /* 炭のような黒 */
+  --char: #19140f;       /* 少し明るい黒 */
+  --gold: #c9a45c;       /* 金色 */
+  --gold-light: #e2c88f; /* 明るい金色 */
+  --text: #ece4d6;       /* 黒い背景の上の文字 */
+  --sub: #a99d8c;        /* うすい文字 */
+  --fire: #e8662a;       /* 炭火のオレンジ */
+  --shu: #9e2b1c;        /* 朱色（はんこの色） */
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --mincho: "Zen Old Mincho", serif;
+  --brush: "Yuji Syuku", "Zen Old Mincho", serif;  /* 筆文字（店名と見出し） */
+  --en: "Cormorant Garamond", serif;
+  --emerge-blur: 12px; /* 浮かび上がるときの、ぼかしの強さ */
+}
+
+/* --- 2. ページ全体 --- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--black);
+  color: var(--text);
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 2;
+  letter-spacing: 0.06em;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3 {
+  font-family: var(--mincho);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  width: min(1100px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.small {
+  font-size: 0.78rem;
+  color: var(--sub);
+}
+
+.brush {
+  font-family: var(--brush);
+  font-weight: 400;
+}
+
+section {
+  position: relative;
+  padding: 160px 0;
+}
+
+/* --- 3. 縦書きの筆文字の見出し（トップと同じ雰囲気をすべてのページに） --- */
+.board-head {
+  display: flex;
+  flex-direction: row-reverse; /* 右から左へ並べる（和の本と同じ向き） */
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 72px;
+}
+
+.v-title {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--brush);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  line-height: 1;
+  letter-spacing: 0.15em;
+  /* 炭火に照らされたような、ほんのり赤い光 */
+  text-shadow: 0 0 28px rgba(232, 102, 42, 0.4);
+}
+
+.v-title.big {
+  font-size: clamp(3rem, 8vw, 6rem);
+}
+
+.v-en {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--en);
+  font-style: italic;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+}
+
+/* --- 4. ボタン --- */
+.btn-gold,
+.btn-line {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 28px;
+  font-family: var(--mincho);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  transition: background-color 0.4s, color 0.4s, box-shadow 0.4s;
+}
+
+.btn-gold {
+  background-color: var(--gold);
+  color: var(--black);
+}
+
+/* マウスを乗せると、炭火のように赤く灯る */
+.btn-gold:hover {
+  background-color: var(--gold-light);
+  box-shadow: 0 0 24px rgba(232, 102, 42, 0.55);
+}
+
+.btn-line {
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+.btn-line:hover {
+  background-color: var(--gold);
+  color: var(--black);
+}
+
+/* 大きいボタン（見出しの「big」とは別もの） */
+.btn-gold.big,
+.btn-line.big {
+  width: 100%;
+  padding: 18px;
+  font-size: 1.05rem;
+}
+
+/* 金色の枠線が、左上から描かれていく */
+.frame {
+  position: relative;
+}
+
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(201, 164, 92, 0.6);
+  clip-path: inset(0 100% 100% 0);
+  transition: clip-path 2s var(--ease) 0.4s;
+  pointer-events: none;
+}
+
+.is-visible .frame::before,
+.frame.is-visible::before {
+  clip-path: inset(0 0 0 0);
+}
+
+/* --- 5. ヘッダー --- */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 32px;
+  transition: background-color 0.5s, padding 0.5s;
+}
+
+.header.is-scrolled {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background-color: rgba(14, 11, 9, 0.85);
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--brush);
+}
+
+.logo-sub {
+  font-size: 0.8rem;
+  color: var(--gold);
+}
+
+.logo-main {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav ul {
+  display: flex;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mincho);
+  font-size: 0.9rem;
+}
+
+.nav ul a {
+  position: relative;
+  transition: color 0.3s;
+}
+
+.nav ul a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--fire), transparent);
+  transform: scaleX(0);
+  transition: transform 0.5s var(--ease);
+}
+
+.nav ul a:hover {
+  color: var(--gold-light);
+}
+
+.nav ul a:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-reserve {
+  padding: 8px 22px;
+  font-size: 0.85rem;
+}
+
+.menu-toggle {
+  display: none;
+  position: relative;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 1px;
+  background-color: var(--text);
+  transition: transform 0.5s var(--ease), top 0.5s var(--ease);
+}
+
+.menu-toggle span:nth-child(1) { top: 18px; }
+.menu-toggle span:nth-child(2) { top: 26px; }
+body.menu-open .menu-toggle span:nth-child(1) { top: 22px; transform: rotate(30deg); }
+body.menu-open .menu-toggle span:nth-child(2) { top: 22px; transform: rotate(-30deg); }
+
+/* --- 6. 共通の演出：煙・湯気・火の粉・ゆらぐ明かり --- */
+
+/* 立ちのぼる煙（ぼかしは使わず、やわらかいグラデーションだけ＝スマホでも軽い） */
+.smoke {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.smoke span {
+  position: absolute;
+  bottom: -30%;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(235, 228, 218, 0.16), rgba(235, 228, 218, 0.06) 55%, transparent);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: smoke 14s linear infinite;
+}
+
+.smoke span:nth-child(1) { left: -15%; animation-delay: 0s; }
+.smoke span:nth-child(2) { left: 25%;  animation-delay: -5s; }
+.smoke span:nth-child(3) { left: 55%;  animation-delay: -10s; }
+
+.smoke.small span {
+  width: 45vmax;
+  height: 45vmax;
+  animation-duration: 10s;
+}
+
+@keyframes smoke {
+  0%   { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate3d(-8vw, -90vh, 0) scale(1.5); opacity: 0; }
+}
+
+/* 火の粉を描く場所（script.js が描く） */
+.embers {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ちょうちんの明かりが、ゆらゆら揺らぐ */
+.flicker {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 45% 35% at 30% 20%, rgba(255, 120, 50, 0.22), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 75% 25%, rgba(255, 150, 70, 0.18), transparent 70%);
+  pointer-events: none;
+  animation: flicker 4s steps(1) infinite;
+}
+
+@keyframes flicker {
+  0%   { opacity: 1; }
+  12%  { opacity: 0.8; }
+  18%  { opacity: 1; }
+  45%  { opacity: 0.9; }
+  52%  { opacity: 0.7; }
+  58%  { opacity: 1; }
+  80%  { opacity: 0.85; }
+}
+
+/* --- 7. すべての要素が「奥の、もやの中から」浮かび上がるように現れる --- */
+/* ぼんやり・小さい・暗い状態から、ふわっと手前に出てきて、はっきり見える */
+.reveal,
+.noren,
+.craft-title,
+.craft-text,
+.craft-num,
+.menu-list li {
+  opacity: 0;
+  scale: 0.86;
+  filter: blur(var(--emerge-blur)) brightness(0.45);
+  transition:
+    opacity 1.4s ease,
+    scale 2s var(--ease),
+    filter 1.6s ease;
+  transition-delay: var(--delay, 0s);
+}
+
+.reveal.is-visible,
+.noren.is-visible,
+.craft.is-in .craft-title,
+.craft.is-in .craft-text,
+.craft.is-in .craft-num,
+.menu-list.is-on li {
+  opacity: 1;
+  scale: 1;
+  filter: blur(0) brightness(1);
+}
+
+/* こだわりの章：見出し → 説明 の順に、少しずつ遅れて */
+.craft-num   { --delay: 0s; }
+.craft-title { --delay: 0.25s; }
+.craft-text  { --delay: 0.6s; }
+
+/* 写真は、浮かび上がったあと、さらにゆっくり引いていく */
+.noren {
+  position: relative;
+  overflow: hidden;
+}
+
+.noren img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.15);
+  transition: transform 3s var(--ease);
+}
+
+.noren.is-visible img,
+.is-visible .noren img {
+  transform: scale(1);
+}
+
+/* --- 8. トップ --- */
+.hero {
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 70%;
+  will-change: transform;
+}
+
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 85%, rgba(232, 102, 42, 0.18), transparent 60%),
+    linear-gradient(180deg, rgba(14, 11, 9, 0.55) 0%, rgba(14, 11, 9, 0.35) 45%, rgba(14, 11, 9, 0.9) 100%);
+}
+
+.hero-text {
+  position: absolute;
+  top: 50%;
+  right: max(40px, calc((100% - 1100px) / 2));
+  z-index: 2;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 40px;
+  translate: 0 -50%;
+}
+
+/* 「炭火焼鳥」（小）を右、「あかり」（大）を左に、縦書きで並べる */
+.hero-name,
+.opening-name {
+  display: flex;
+  flex-direction: row-reverse;
+  margin: 0;
+  font-family: var(--brush);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.hero-name span,
+.opening-name span {
+  writing-mode: vertical-rl;
+}
+
+.hero-name {
+  gap: 12px;
+  letter-spacing: 0.15em;
+}
+
+.hero-sub {
+  padding-top: 1.2em;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  color: var(--gold);
+}
+
+.hero-main {
+  font-size: clamp(4.5rem, 11vw, 8.5rem);
+  text-shadow: 0 0 30px rgba(232, 102, 42, 0.45), 0 0 2px rgba(255, 220, 180, 0.6);
+}
+
+.hero-copy {
+  margin: 4.5em 0 0;
+  writing-mode: vertical-rl;
+  font-family: var(--mincho);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  letter-spacing: 0.35em;
+  line-height: 2.2;
+}
+
+.hero-en {
+  position: absolute;
+  left: max(32px, calc((100% - 1100px) / 2));
+  bottom: 40px;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--en);
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  color: var(--sub);
+}
+
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  translate: -50% 0;
+  font-family: var(--en);
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: var(--sub);
+}
+
+.scroll-cue::after {
+  content: "";
+  width: 1px;
+  height: 64px;
+  background: linear-gradient(var(--gold), transparent);
+  transform-origin: top;
+  animation: cue 2.2s var(--ease) infinite;
+}
+
+@keyframes cue {
+  0%   { transform: scaleY(0); opacity: 1; }
+  60%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+
+/* --- 9. 三つのこだわり：画面いっぱいの写真が、上に重なるように切り替わる --- */
+.craft {
+  position: sticky; /* 画面に止まり、次の章が下から上にかぶさってくる */
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--black);
+}
+
+.craft-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.craft-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.18);
+  transition: transform 6s var(--ease);
+  will-change: transform;
+}
+
+/* 章に入ると、写真がゆっくり引いていく */
+.craft.is-in .craft-bg img {
+  transform: scale(1);
+}
+
+.craft-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(232, 102, 42, 0.15), transparent 60%),
+    linear-gradient(90deg, rgba(14, 11, 9, 0.88) 0%, rgba(14, 11, 9, 0.35) 50%, rgba(14, 11, 9, 0.8) 100%);
+}
+
+/* うしろの巨大な筆文字（壱・弐・参）：金色のふち取りだけ */
+.craft-num {
+  position: absolute;
+  left: 3vw;
+  top: 50%;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--brush);
+  font-size: min(64vh, 48vw);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(201, 164, 92, 0.4);
+  translate: 0 -50%;
+}
+
+/* 右側の縦書きの見出し */
+.craft-head {
+  position: absolute;
+  top: 50%;
+  right: max(40px, calc((100% - 1100px) / 2));
+  z-index: 3;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 22px;
+  translate: 0 -50%;
+}
+
+.craft-label {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--mincho);
+  font-size: 0.9rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+}
+
+.craft-label span {
+  display: block;
+  margin-right: 8px;
+  font-family: var(--en);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--sub);
+}
+
+.craft-title {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--brush);
+  font-weight: 400;
+  font-size: clamp(3rem, 7vw, 5.6rem);
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 30px rgba(232, 102, 42, 0.45);
+}
+
+/* 左下の説明文 */
+.craft-text {
+  position: absolute;
+  left: max(40px, calc((100% - 1100px) / 2));
+  bottom: 12vh;
+  z-index: 3;
+  max-width: 380px;
+  margin: 0;
+  padding-left: 22px;
+  border-left: 1px solid var(--gold);
+  font-family: var(--mincho);
+  line-height: 2.2;
+}
+
+.craft .smoke {
+  z-index: 1;
+}
+
+/* --- 10. お品書き：黒地に金の、すっきりした品書き --- */
+.oshinagaki {
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 0%, rgba(255, 190, 110, 0.12), transparent 70%),
+    linear-gradient(180deg, #120d09, var(--black));
+}
+
+/* 串焼・一品・飲みもの のタブ */
+.menu-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 56px;
+}
+
+.menu-tabs button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 28px 18px;
+  border: 0;
+  background: none;
+  color: var(--sub);
+  cursor: pointer;
+  transition: color 0.4s, text-shadow 0.4s;
+}
+
+.menu-tabs .brush {
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: 0.15em;
+  white-space: nowrap; /* 文字の途中で折り返さない */
+}
+
+.menu-tabs small {
+  font-family: var(--en);
+  font-style: italic;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+}
+
+/* 選んでいるタブの下に、炭火のような光の線 */
+.menu-tabs button::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--fire), var(--gold-light), var(--fire), transparent);
+  transform: scaleX(0);
+  transition: transform 0.6s var(--ease);
+}
+
+.menu-tabs button:hover {
+  color: var(--text);
+}
+
+.menu-tabs button[aria-selected="true"] {
+  color: var(--gold-light);
+  text-shadow: 0 0 20px rgba(232, 102, 42, 0.5);
+}
+
+.menu-tabs button[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+
+/* 品書きの一覧 */
+.menu-list {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.menu-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3em auto 92px 1fr auto;
+  align-items: center;
+  gap: 24px;
+  cursor: pointer;
+  padding: 22px 16px;
+  border-bottom: 1px solid rgba(201, 164, 92, 0.18);
+}
+
+/* マウスを乗せると、うしろがほんのり炭火色に灯る */
+.menu-list li::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(232, 102, 42, 0.14), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.menu-list li:hover::before {
+  opacity: 1;
+}
+
+.menu-list .no {
+  font-family: var(--en);
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+}
+
+.menu-list .name {
+  font-family: var(--mincho);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  transition: translate 0.6s var(--ease), color 0.4s;
+}
+
+.menu-list .name em {
+  display: block;
+  font-family: var(--en);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--sub);
+}
+
+.menu-list li:hover .name {
+  translate: 10px 0;
+  color: var(--gold-light);
+}
+
+/* 品名と値段のあいだの、細い金の線（マウスを乗せると伸びる） */
+.menu-list .line {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201, 164, 92, 0.55), rgba(201, 164, 92, 0.05));
+  transform: scaleX(0.35);
+  transform-origin: left;
+  transition: transform 0.8s var(--ease);
+}
+
+.menu-list li:hover .line {
+  transform: scaleX(1);
+}
+
+.menu-list .price {
+  font-family: var(--en);
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--gold-light);
+  white-space: nowrap; /* 「円」が下に折れないように */
+}
+
+.menu-list .price small {
+  margin-left: 4px;
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 0.75rem;
+  color: var(--sub);
+}
+
+/* 品名の横に、料理の写真がふわっと浮かぶ */
+.menu-list .thumb {
+  position: relative;
+  z-index: 1;
+  width: 92px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid rgba(201, 164, 92, 0.55);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6), 0 0 24px rgba(232, 102, 42, 0.18);
+  opacity: 0;
+  scale: 0.8;
+  filter: blur(8px) brightness(0.5);
+  transition: opacity 0.5s, scale 0.8s var(--ease), filter 0.6s;
+  pointer-events: none;
+}
+
+.menu-list .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* マウスを乗せたとき（パソコン）・タップしたとき（スマホ）に表示 */
+@media (hover: hover) {
+  .menu-list li:hover .thumb {
+    opacity: 1;
+    scale: 1;
+    filter: blur(0) brightness(1);
+  }
+}
+
+.menu-list li.is-open .thumb {
+  opacity: 1;
+  scale: 1;
+  filter: blur(0) brightness(1);
+}
+
+.menu-list li.is-open::before {
+  opacity: 1;
+}
+
+.note {
+  margin: 40px 0 0;
+  font-size: 0.8rem;
+  color: var(--sub);
+  text-align: center;
+}
+
+/* スマホでは、タブを少し小さくして横一列に収める */
+@media (max-width: 600px) {
+  .menu-tabs {
+    gap: 0;
+    margin-bottom: 32px;
+  }
+
+  .menu-tabs button {
+    padding: 8px 12px 14px;
+  }
+
+  .menu-tabs .brush {
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+  }
+
+  .menu-list li {
+    grid-template-columns: 2em auto 64px 1fr;
+    gap: 12px;
+    padding: 18px 6px;
+  }
+
+  .menu-list .thumb {
+    width: 64px;
+  }
+
+  .menu-list .price {
+    justify-self: end;
+  }
+
+  .menu-list .line {
+    display: none;
+  }
+
+  .menu-list .name {
+    font-size: 1.1rem;
+    letter-spacing: 0.06em;
+  }
+
+  .menu-list .price {
+    font-size: 1.5rem;
+  }
+}
+
+/* パソコンでは、右に縦書きのタイトル、左に品書きを並べる */
+@media (min-width: 901px) {
+  .oshinagaki .container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 72px;
+    align-items: start;
+  }
+
+  .oshinagaki .board-head {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    position: sticky;
+    top: 120px;
+    margin: 0;
+  }
+
+  .oshinagaki .container > :not(.board-head) {
+    grid-column: 1;
+  }
+
+  .oshinagaki .menu-tabs {
+    justify-content: flex-start;
+  }
+
+  .oshinagaki .menu-list {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .oshinagaki .note {
+    text-align: left;
+  }
+}
+
+/* --- 11. お酒：暗やみに浮かぶ徳利と、立ちのぼる湯気 --- */
+.sake {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 40px;
+  padding: 160px max(40px, calc((100% - 1100px) / 2));
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 45% 60% at 28% 50%, rgba(255, 220, 170, 0.1), transparent 70%),
+    var(--black);
+}
+
+.sake-visual {
+  position: relative;
+}
+
+.sake-frame {
+  aspect-ratio: 4 / 5;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.sake-frame img {
+  object-position: 55% 50%;
+  filter: brightness(0.8) contrast(1.08) sepia(0.15);
+}
+
+/* まわりを暗くして、徳利だけが浮かび上がるように */
+.sake-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  max-width: 440px;
+  margin: 0 auto;
+  background: radial-gradient(ellipse 70% 70% at 55% 55%, transparent 40%, rgba(14, 11, 9, 0.85) 100%);
+  pointer-events: none;
+}
+
+/* おちょこから、ほのかに立ちのぼる湯気 */
+.steam {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  z-index: 3;
+  width: 160px;
+  height: 60%;
+  translate: -20% 0;
+  pointer-events: none;
+}
+
+.steam span {
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  width: 70px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.28), transparent);
+  opacity: 0;
+  animation: steam 6s ease-out infinite;
+}
+
+.steam span:nth-child(2) { left: 50%; animation-delay: -2s; }
+.steam span:nth-child(3) { left: 10%; animation-delay: -4s; }
+
+@keyframes steam {
+  0%   { transform: translate3d(0, 0, 0) scale(0.5, 0.6); opacity: 0; }
+  30%  { opacity: 0.9; }
+  100% { transform: translate3d(-20px, -160px, 0) scale(1.3, 1.6); opacity: 0; }
+}
+
+.sake-text {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 48px;
+}
+
+.v-copy {
+  margin: 3em 0 0;
+  writing-mode: vertical-rl;
+  font-family: var(--mincho);
+  font-size: 1.05rem;
+  line-height: 2.4;
+  letter-spacing: 0.3em;
+}
+
+/* --- 12. コース --- */
+.course {
+  background: linear-gradient(180deg, var(--black), var(--char));
+}
+
+.plan {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  margin-bottom: 100px;
+  background-color: rgba(14, 11, 9, 0.6);
+}
+
+.plan:last-child {
+  margin-bottom: 0;
+}
+
+.plan.reverse .plan-image {
+  order: 2;
+}
+
+.plan-image {
+  aspect-ratio: 4 / 3;
+}
+
+/* 文章：右に縦書きの筆文字、左に値段と説明 */
+.plan-body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-content: center;
+  column-gap: 28px;
+  padding: 56px 48px;
+}
+
+.plan-title {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-size: clamp(3rem, 6vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 24px rgba(232, 102, 42, 0.4);
+}
+
+.plan-sub {
+  margin: 0;
+  font-family: var(--mincho);
+  color: var(--gold);
+  letter-spacing: 0.25em;
+}
+
+.plan-price {
+  margin: 4px 0 20px;
+  font-family: var(--en);
+  font-size: 3.2rem;
+  line-height: 1.1;
+  color: var(--gold-light);
+}
+
+.plan-price span {
+  margin-left: 6px;
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 0.75rem;
+  color: var(--sub);
+}
+
+.plan-body p:last-child {
+  margin: 0;
+  font-family: var(--mincho);
+}
+
+/* --- 13. 店内 --- */
+.tennai {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.tennai-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.tennai-bg img {
+  width: 100%;
+  height: 125%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+.tennai-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(270deg, rgba(14, 11, 9, 0.9) 0%, rgba(14, 11, 9, 0.4) 55%, rgba(14, 11, 9, 0.15) 100%);
+}
+
+/* まとまり全体を縦書きにして、右から「見出し → 席の案内」と並べる */
+.tennai-inner {
+  position: relative;
+  z-index: 2;
+  width: min(1100px, calc(100% - 40px));
+  margin: 0 auto;
+  writing-mode: vertical-rl;
+}
+
+.tennai-inner .v-title {
+  margin-left: 48px;
+}
+
+.tennai-list {
+  margin: 0;
+  padding: 2em 0 0;
+  list-style: none;
+  font-family: var(--mincho);
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.9); /* 明るいちょうちんの上でも読めるように */
+}
+
+.tennai-list li {
+  margin-left: 24px;
+}
+
+.tennai-list span {
+  margin-bottom: 0.8em;
+  margin-right: 0;
+  padding-bottom: 0.6em;
+  color: var(--gold);
+}
+
+/* --- 14. ご予約・アクセス --- */
+.access {
+  overflow: hidden;
+}
+
+/* 路地の写真は、お店の名前が読めないように暗くぼかして背景に */
+.access-bg {
+  position: absolute;
+  inset: -40px;
+}
+
+.access-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(14px) brightness(0.35) saturate(1.2);
+}
+
+.access-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 56px;
+}
+
+.info {
+  margin: 0;
+}
+
+.info div {
+  display: grid;
+  grid-template-columns: 7em 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(201, 164, 92, 0.3);
+}
+
+.info dt {
+  font-family: var(--mincho);
+  color: var(--gold-light);
+}
+
+.info dd {
+  margin: 0;
+}
+
+.reserve {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 44px 40px;
+  background-color: rgba(14, 11, 9, 0.6);
+}
+
+.reserve p {
+  margin: 0 0 8px;
+}
+
+/* --- 15. フッター --- */
+.footer {
+  padding: 72px 20px 48px;
+  border-top: 1px solid rgba(201, 164, 92, 0.25);
+  text-align: center;
+}
+
+.footer p {
+  margin: 0 0 6px;
+}
+
+.footer-name {
+  font-family: var(--brush);
+  font-size: 2.4rem;
+  line-height: 1.4;
+  text-shadow: 0 0 24px rgba(232, 102, 42, 0.35);
+}
+
+.footer-name span {
+  margin-right: 10px;
+  font-size: 0.9rem;
+  color: var(--gold);
+}
+
+/* --- 16. スマホ用の下の予約ボタン（パソコンでは隠す） --- */
+.sp-bar {
+  display: none;
+}
+
+/* --- 17. 見本サイト用のお知らせ --- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  z-index: 90;
+  max-width: calc(100% - 40px);
+  padding: 14px 24px;
+  border: 1px solid var(--gold);
+  background-color: var(--black);
+  color: var(--text);
+  font-size: 0.85rem;
+  opacity: 0;
+  translate: -50% 20px;
+  pointer-events: none;
+  transition: opacity 0.4s, translate 0.4s var(--ease);
+}
+
+.toast.is-show {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+/* =========================================
+   画面の幅に合わせた調整（レスポンシブ対応）
+   ========================================= */
+
+/* --- タブレット・小さいパソコン（幅 900px 以下） --- */
+@media (max-width: 900px) {
+  section {
+    padding: 110px 0;
+  }
+
+  .header {
+    padding: 14px 20px;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav {
+    position: fixed;
+    inset: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+    background-color: rgba(14, 11, 9, 0.97);
+    clip-path: circle(0 at calc(100% - 42px) 36px);
+    visibility: hidden;
+    transition: clip-path 0.8s var(--ease), visibility 0s 0.8s;
+  }
+
+  body.menu-open .nav {
+    clip-path: circle(150% at calc(100% - 42px) 36px);
+    visibility: visible;
+    transition: clip-path 0.8s var(--ease), visibility 0s;
+  }
+
+  .nav ul {
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    font-size: 1.2rem;
+  }
+
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  .plan,
+  .access-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan.reverse .plan-image {
+    order: 0;
+  }
+
+  .sake {
+    grid-template-columns: 1fr;
+    gap: 64px;
+    padding: 110px 20px;
+  }
+
+}
+
+/* --- スマホ（幅 600px 以下） --- */
+@media (max-width: 600px) {
+  :root {
+    --emerge-blur: 6px; /* スマホは、ぼかしを弱めにして軽く */
+  }
+
+  body {
+    font-size: 14px;
+    padding-bottom: 60px;
+  }
+
+  .hero-text {
+    right: 24px;
+    gap: 22px;
+  }
+
+  .hero-en {
+    left: 20px;
+    bottom: 96px;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+  }
+
+  .scroll-cue {
+    display: none;
+  }
+
+  .board-head {
+    margin-bottom: 48px;
+  }
+
+  /* こだわりの章：見出しは右上、説明は下に */
+  .craft-head {
+    top: 16%;
+    right: 20px;
+    translate: 0 0;
+  }
+
+  .craft-title {
+    font-size: 3rem;
+  }
+
+  .craft-num {
+    left: -6vw;
+    top: 42%;
+    font-size: 78vw;
+  }
+
+  .craft-text {
+    left: 20px;
+    right: 20px;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    max-width: none;
+    font-size: 0.95rem;
+  }
+
+
+  .plan-body {
+    padding: 40px 28px;
+  }
+
+  .plan-price {
+    font-size: 2.6rem;
+  }
+
+  .tennai-inner .v-title {
+    margin-left: 24px;
+  }
+
+  .tennai-list {
+    font-size: 1rem;
+  }
+
+  .tennai-list li {
+    margin-left: 16px;
+  }
+
+  .reserve {
+    padding: 36px 24px;
+  }
+
+  .info div {
+    grid-template-columns: 5.5em 1fr;
+    gap: 8px;
+  }
+
+  .sp-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    padding-bottom: env(safe-area-inset-bottom);
+    background-color: var(--black);
+    border-top: 1px solid rgba(201, 164, 92, 0.4);
+    translate: 0 110%;
+    transition: translate 0.5s var(--ease);
+  }
+
+  .sp-bar.is-show {
+    translate: 0 0;
+  }
+
+  .sp-bar a {
+    display: grid;
+    place-items: center;
+    height: 60px;
+    font-family: var(--mincho);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .sp-bar .gold {
+    background-color: var(--gold);
+    color: var(--black);
+  }
+
+  .toast {
+    bottom: 80px;
+    text-align: center;
+  }
+}
+
+/* =========================================
+   動き（アニメーション）
+   ========================================= */
+
+/* --- オープニング：暗やみに筆文字の店名が、上から書かれるように現れる --- */
+#opening {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background-color: var(--black);
+  animation: openingOut 1.2s var(--ease) 2.4s forwards;
+}
+
+.opening-name {
+  gap: 14px;
+}
+
+.opening-name span:first-child {
+  padding-top: 1em;
+  font-size: 1.3rem;
+  color: var(--gold);
+  animation: write 1.2s var(--ease) 0.2s both;
+}
+
+.opening-name span:last-child {
+  font-size: 5rem;
+  text-shadow: 0 0 30px rgba(232, 102, 42, 0.5);
+  animation: write 1.6s var(--ease) 0.6s both;
+}
+
+@keyframes write {
+  from { clip-path: inset(0 0 100% 0); opacity: 0.4; }
+  to   { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+
+@keyframes openingOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* --- トップ：写真がゆっくり寄っていき、文字が浮かび上がる --- */
+.hero-bg img {
+  animation: heroZoom 14s var(--ease) 2.4s both;
+}
+
+@keyframes heroZoom {
+  from { transform: scale(1.18); }
+  to   { transform: scale(1.02); }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.hero-name  { animation: rise 1.6s var(--ease) 2.6s both; }
+.hero-copy  { animation: rise 1.6s var(--ease) 3.1s both; }
+.hero-en,
+.scroll-cue { animation: fadeIn 1.4s var(--ease) 3.6s both; }
+.header     { animation: fadeIn 1.2s var(--ease) 2.8s both; }
+
+/* --- 「動きを減らす」設定の人には、動きを止める（やさしさ対応） --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  #opening,
+  .smoke,
+  .steam,
+  .embers {
+    display: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .noren,
+  .craft-num,
+  .craft-title,
+  .craft-text,
+  .menu-list li {
+    opacity: 1 !important;
+    scale: 1 !important;
+    filter: none !important;
+  }
+
+  .frame::before {
+    clip-path: none !important;
+  }
+
+  .noren img,
+  .craft-bg img {
+    scale: 1 !important;
+    transform: none !important;
+  }
+
+  .craft {
+    position: relative;
+  }
+}
