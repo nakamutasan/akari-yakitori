@@ -141,11 +141,6 @@ document.querySelectorAll('.reveal, .noren').forEach((el) => observer.observe(el
 const tabs = document.querySelectorAll('.menu-tabs [role="tab"]');
 const panels = document.querySelectorAll('.menu-list');
 
-// 品書きの1行ずつに「何番目か」をつけて、上から順番に浮かび上がるようにする
-panels.forEach((panel) => {
-  [...panel.children].forEach((li, i) => li.style.setProperty('--delay', `${0.15 + i * 0.08}s`));
-});
-
 // 表示中の品書きを、もう一度奥から浮かび上がらせる
 function showPanel(panel) {
   panel.classList.remove('is-on');
@@ -183,8 +178,12 @@ const menuPhotos = {
   'menu-nomimono': ['images/sake.jpg'],
 };
 
-panels.forEach((panel) => {
+// 品書きの1行ずつに「順番に浮かび上がる時間差」「写真」「タップで写真を出す動き」をつける
+// （スプレッドシートから品書きを作り直したときも、もう一度これを呼ぶ）
+function prepareMenu(panel) {
   [...panel.children].forEach((li, i) => {
+    li.style.setProperty('--delay', `${0.15 + i * 0.08}s`);
+
     // 品名のすぐ後ろに、写真の枠を入れる
     const photos = menuPhotos[panel.id];
     const thumb = document.createElement('span');
@@ -199,7 +198,81 @@ panels.forEach((panel) => {
       li.classList.toggle('is-open', open);
     });
   });
-});
+}
+
+panels.forEach(prepareMenu);
+
+// --- 3-4. お品書き：Google スプレッドシートから読み込む ---
+// ▼ メニュー表を「ウェブに公開」したときの CSV のアドレスを、'' の中に貼ります。
+//   空のままなら、HTML に書いてある見本のお品書きがそのまま出ます。
+//   表の形：A列＝種類（串焼・一品・飲みもの） B列＝品名 C列＝英語名（なくてもOK） D列＝価格（例：220、700〜、時価）
+const MENU_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQUE5Di3HEwbOXoyeOwHBuerNI6qtaZr8OTZwuB0lJn-iAMfb6Ah1ABwoeySX5mxUOGl57JmWBwEMsH/pub?gid=0&single=true&output=csv';
+const MENU_KINDS = { '串焼': 'menu-kushi', '串焼き': 'menu-kushi', '一品': 'menu-ippin', '飲みもの': 'menu-nomimono', '飲み物': 'menu-nomimono' };
+
+// 「700〜」→ 700<small>円〜</small> のように、数字と後ろの文字に分けて入れる
+function makePrice(text) {
+  const price = document.createElement('span');
+  price.className = 'price';
+  const m = text.replace(/[,，円\s]/g, '').match(/^(\d+)(.*)$/);
+  if (m) {
+    price.textContent = Number(m[1]).toLocaleString('ja-JP');
+    const small = document.createElement('small');
+    small.textContent = `円${m[2]}`;
+    price.append(small);
+  } else {
+    price.textContent = text; // 「時価」など、数字でないときはそのまま
+  }
+  return price;
+}
+
+async function loadMenu() {
+  if (!MENU_SHEET_URL) return;
+  try {
+    const res = await fetch(MENU_SHEET_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    const rows = parseCSV(await res.text()).slice(1); // 1行目は見出しなので飛ばす
+
+    // 種類ごとに分ける（品名が空の行と、種類が分からない行は飛ばす）
+    const groups = {};
+    rows.forEach((r) => {
+      const id = MENU_KINDS[(r[0] || '').trim()];
+      const name = (r[1] || '').trim();
+      if (!id || !name) return;
+      (groups[id] = groups[id] || []).push({ name, en: (r[2] || '').trim(), price: (r[3] || '').trim() });
+    });
+
+    // 表に品がある種類だけ、作り直す（品がない種類は、見本のまま）
+    panels.forEach((panel) => {
+      const items = groups[panel.id];
+      if (!items) return;
+      panel.replaceChildren(...items.map((item, i) => {
+        const li = document.createElement('li');
+        const no = document.createElement('span');
+        no.className = 'no';
+        no.textContent = String(i + 1).padStart(2, '0');
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = item.name;
+        if (item.en) {
+          const em = document.createElement('em');
+          em.textContent = item.en;
+          name.append(em);
+        }
+        const line = document.createElement('span');
+        line.className = 'line';
+        li.append(no, name, line, makePrice(item.price));
+        return li;
+      }));
+      prepareMenu(panel);
+      if (panel.classList.contains('is-on')) showPanel(panel);
+    });
+  } catch (err) {
+    // 読めなかったときは、見本のお品書きをそのまま残す
+    console.warn('お品書きを読み込めませんでした', err);
+  }
+}
+
+loadMenu();
 
 // --- 4. 三つのこだわり：章が画面に入ったら、写真・筆文字・説明を出す ---
 const craftObserver = new IntersectionObserver((entries) => {
@@ -238,3 +311,66 @@ document.querySelectorAll('[data-demo]').forEach((el) => el.addEventListener('cl
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('is-show'), 3000);
 }));
+
+// --- 7. お知らせ：Google スプレッドシートから読み込む ---
+// ▼ スプレッドシートを「ウェブに公開」したときの CSV のアドレスを、'' の中に貼ります。
+//   空のままなら、HTML に書いてある見本のお知らせがそのまま出ます。
+const NEWS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvV9H71kXUdjosd4XhNDk63uAogjazBnXoLc_Sg_Ua4WSfCkRptoKRkjLIrEX3Vz-letUAweBfdBuM/pub?gid=0&single=true&output=csv';
+const NEWS_MAX = 5; // 表示するお知らせの数（上から順に）
+
+// CSV（カンマ区切りの文字）を、表の形（行と列）に直す
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') quoted = false;
+      else cell += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if (c !== '\r') cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+async function loadNews() {
+  const list = document.getElementById('news-list');
+  if (!list || !NEWS_SHEET_URL) return;
+  try {
+    const res = await fetch(NEWS_SHEET_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    // 1行目は見出し（日付・ラベル・お知らせ）なので飛ばす。本文が空の行も飛ばす
+    const items = parseCSV(await res.text())
+      .slice(1)
+      .map((r) => ({ date: (r[0] || '').trim(), tag: (r[1] || '').trim(), text: (r[2] || '').trim() }))
+      .filter((n) => n.text)
+      .slice(0, NEWS_MAX);
+    if (!items.length) return;
+
+    // 文字は textContent で入れる（スプレッドシートに何を書かれても、安全に文字として出す）
+    list.replaceChildren(...items.map((n) => {
+      const li = document.createElement('li');
+      const time = document.createElement('time');
+      const tag = document.createElement('span');
+      const p = document.createElement('p');
+      time.textContent = n.date;
+      tag.className = 'news-tag';
+      tag.textContent = n.tag;
+      p.textContent = n.text;
+      if (!n.tag) li.classList.add('no-tag');
+      li.append(time, tag, p);
+      return li;
+    }));
+  } catch (err) {
+    // 読めなかったときは、見本のお知らせをそのまま残す
+    console.warn('お知らせを読み込めませんでした', err);
+  }
+}
+
+loadNews();
