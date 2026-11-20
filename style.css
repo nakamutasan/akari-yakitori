@@ -1634,3 +1634,12 @@ body.menu-open .menu-toggle span:nth-child(2) { top: 22px; transform: rotate(-30
     position: relative;
   }
 }
+
+/* --- 2回目からは、オープニングを飛ばしてすぐ表示（index.html の opened と連動） --- */
+html.opened #opening { display: none; }
+html.opened .hero-bg img { animation-delay: 0s; }
+html.opened .hero-name { animation-delay: 0.2s; }
+html.opened .hero-copy { animation-delay: 0.7s; }
+html.opened .hero-en,
+html.opened .scroll-cue { animation-delay: 1.2s; }
+html.opened .header { animation-delay: 0.4s; }

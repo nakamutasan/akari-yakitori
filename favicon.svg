@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- サイトのアイコン：暗い背景に、炭火の炎 -->
+  <defs>
+    <linearGradient id="f" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#c8501e"/>
+      <stop offset="0.55" stop-color="#e8a23a"/>
+      <stop offset="1" stop-color="#f6d58a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#14100d"/>
+  <path d="M32 9c3 9 13 14 13 26a13 13 0 0 1-26 0c0-6 3-10 6-13 0 5 2 8 5 9-2-8 1-15 2-22z" fill="url(#f)"/>
+  <rect x="16" y="50" width="32" height="4" rx="2" fill="#b8925a"/>
+</svg>
